@@ -38,6 +38,17 @@ app.get('/', (req, res) => {
   res.send('<h1>Phonebook!</h1>')
 })
 
+app.get('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+  const person = contacts.find(person => person.id === Number(id))
+  if (person) {
+    response.json(person)
+  }
+  else {
+    response.status(404).end()
+  }
+})
+
 app.get('/api/persons', (req, res) => {
   res.json(contacts)
 })
