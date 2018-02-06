@@ -53,6 +53,14 @@ app.get('/api/persons', (req, res) => {
   res.json(contacts)
 })
 
+app.delete('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  contacts = contacts.filter(person => person.id !== id)
+
+  response.status(204).end()
+})
+
+
 app.get('/info', (req, res) => {
   let info = `puhelinluettelossa ${contacts.length} ihmisen tiedot`
   let time = new Date();
