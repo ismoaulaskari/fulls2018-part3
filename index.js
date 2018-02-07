@@ -1,5 +1,8 @@
 const express = require('express')
 const app = express()
+const bodyParser = require('body-parser')
+
+app.use(bodyParser.json())
 
 let contacts = [
   {
@@ -53,13 +56,19 @@ app.get('/api/persons', (req, res) => {
   res.json(contacts)
 })
 
+app.post('/api/persons', (req, res) => {
+  const person = req.body
+  person.id = Math.floor(Math.random() * 1000000)
+  contacts = contacts.concat(person)
+  res.json(person)
+})
+
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   contacts = contacts.filter(person => person.id !== id)
 
   response.status(204).end()
 })
-
 
 app.get('/info', (req, res) => {
   let info = `puhelinluettelossa ${contacts.length} ihmisen tiedot`
