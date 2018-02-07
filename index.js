@@ -58,6 +58,19 @@ app.get('/api/persons', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
   const person = req.body
+
+  if (person.name === undefined) {
+    return res.status(400).json({error: 'name missing'})
+  }
+  if (person.number === undefined) {
+    return res.status(400).json({error: 'number missing'})
+  }
+
+  const existing = contacts.find(p => p.name === person.name)
+  if(existing) {
+    return res.status(400).json({error: 'already exists'})
+  }
+
   person.id = Math.floor(Math.random() * 1000000)
   contacts = contacts.concat(person)
   res.json(person)
