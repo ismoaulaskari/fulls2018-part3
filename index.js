@@ -80,6 +80,28 @@ app.post('/api/persons', (req, res) => {
   res.json(person)
 })
 
+app.put('/api/persons', (req, res) => {
+  const person = req.body
+
+  if (person.name === undefined) {
+    return res.status(400).json({error: 'name missing'})
+  }
+  if (person.number === undefined) {
+    return res.status(400).json({error: 'number missing'})
+  }
+
+  const existing = contacts.find(p => p.name === person.name)
+  if(existing) {
+    existing.number = person.number  
+    res.json(existing)
+  }
+  else {
+    return res.status(404)
+  }
+  
+})
+
+
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
   contacts = contacts.filter(person => person.id !== id)
