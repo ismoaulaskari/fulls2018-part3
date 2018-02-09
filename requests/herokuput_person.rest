@@ -1,0 +1,8 @@
+PUT https://mighty-island-21820.herokuapp.com/api/persons
+content-type: application/json
+
+{
+    "name": "hang",
+    "number": "777"
+}
+

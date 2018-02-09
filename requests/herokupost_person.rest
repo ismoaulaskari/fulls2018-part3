@@ -1,0 +1,8 @@
+POST https://mighty-island-21820.herokuapp.com/api/persons
+content-type: application/json
+
+{
+    "name": "Hulk Hogan",
+    "number": "123567"
+}
+
