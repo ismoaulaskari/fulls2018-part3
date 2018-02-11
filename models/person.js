@@ -24,13 +24,18 @@ personSchema.statics.getAll = () => {
     Person
         .find({})
         .then(persons => persons.map(Person.format))
-}
+        .catch(error => {
+            console.log(error)
+        })
 
+}
 personSchema.statics.create = (person) => {
     person = new Person(person)
     person.save()
         .then(response => {
             //console.log(`lisätään henkilö ${person.name} numero ${person.number} luetteloon`)            
+        }).catch(error => {
+            console.log(error)
         })
 }
 
