@@ -3,6 +3,7 @@ const app = express()
 const cors = require('cors')
 const bodyParser = require('body-parser')
 const morgan = require('morgan')
+const Person = require('./models/person')
 
 app.use(express.static('build'))
 app.use(cors())
@@ -42,6 +43,12 @@ let contacts = [
   }
 ]
 
+contacts.forEach(person => {
+  //Person.create(person)
+})
+
+contacts = Person.getAll((err, p) => p)
+
 app.get('/', (req, res) => {
   res.send('<h1>Phonebook!</h1>')
 })
@@ -58,22 +65,22 @@ app.get('/api/persons/:id', (request, response) => {
 })
 
 app.get('/api/persons', (req, res) => {
-  res.json(contacts)
+  Person.find({}).then((persons) => res.json(persons.map(Person.format)))
 })
 
 app.post('/api/persons', (req, res) => {
   const person = req.body
 
   if (person.name === undefined) {
-    return res.status(400).json({error: 'name missing'})
+    return res.status(400).json({ error: 'name missing' })
   }
   if (person.number === undefined) {
-    return res.status(400).json({error: 'number missing'})
+    return res.status(400).json({ error: 'number missing' })
   }
 
   const existing = contacts.find(p => p.name === person.name)
-  if(existing) {
-    return res.status(400).json({error: 'already exists'})
+  if (existing) {
+    return res.status(400).json({ error: 'already exists' })
   }
 
   person.id = Math.floor(Math.random() * 1000000)
@@ -85,21 +92,21 @@ app.put('/api/persons', (req, res) => {
   const person = req.body
 
   if (person.name === undefined) {
-    return res.status(400).json({error: 'name missing'})
+    return res.status(400).json({ error: 'name missing' })
   }
   if (person.number === undefined) {
-    return res.status(400).json({error: 'number missing'})
+    return res.status(400).json({ error: 'number missing' })
   }
 
   const existing = contacts.find(p => p.name === person.name)
-  if(existing) {
-    existing.number = person.number  
+  if (existing) {
+    existing.number = person.number
     res.json(existing)
   }
   else {
     return res.status(404)
   }
-  
+
 })
 
 
