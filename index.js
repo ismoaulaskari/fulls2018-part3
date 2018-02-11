@@ -47,7 +47,7 @@ contacts.forEach(person => {
   //Person.create(person)
 })
 
-contacts = Person.getAll((err, p) => p)
+//contacts = Person.getAll((err, p) => p)
 
 app.get('/', (req, res) => {
   res.send('<h1>Phonebook!</h1>')
@@ -70,6 +70,7 @@ app.get('/api/persons', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
   const person = req.body
+  console.log("POST", person)
 
   if (person.name === undefined) {
     return res.status(400).json({ error: 'name missing' })
@@ -77,15 +78,11 @@ app.post('/api/persons', (req, res) => {
   if (person.number === undefined) {
     return res.status(400).json({ error: 'number missing' })
   }
-
-  const existing = contacts.find(p => p.name === person.name)
-  if (existing) {
-    return res.status(400).json({ error: 'already exists' })
-  }
-
-  person.id = Math.floor(Math.random() * 1000000)
-  contacts = contacts.concat(person)
-  res.json(person)
+  
+  const saved = Person.format(person)
+  Person.create(saved)  
+  contacts = contacts.concat(saved)
+  res.json(saved)
 })
 
 app.put('/api/persons', (req, res) => {
