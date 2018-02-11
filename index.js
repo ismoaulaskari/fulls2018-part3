@@ -10,79 +10,72 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
 
-let contacts = [
-  {
-    "name": "Arto Hellas",
-    "number": "040-123456",
-    "id": 1
-  },
-  {
-    "name": "Martti Tienari",
-    "number": "040-123456",
-    "id": 2
-  },
-  {
-    "name": "Arto Järvinen",
-    "number": "040-123456",
-    "id": 3
-  },
-  {
-    "name": "Lea Kutvonen",
-    "number": "040-123456",
-    "id": 4
-  },
-  {
-    "name": "urho kekkekon",
-    "number": "59585",
-    "id": 6
-  },
-  {
-    "id": 8,
-    "name": "hang",
-    "number": "666"
-  }
-]
-
-contacts.forEach(person => {
-  //Person.create(person)
-})
-
-//contacts = Person.getAll((err, p) => p)
+let contacts = []
 
 app.get('/', (req, res) => {
   res.send('<h1>Phonebook!</h1>')
 })
 
 app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const person = contacts.find(person => person.id === id)
-  if (person) {
-    response.json(person)
-  }
-  else {
-    response.status(404).end()
-  }
+  const id = request.params.id
+  //if (!mongoose.Types.ObjectId.isValid(id)) 
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) return response.status(400).json({ error: 'bad objectId' })
+
+  const person = Person.get(id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      }
+      else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => {
+      console.log(error)
+    })
 })
 
-app.get('/api/persons', (req, res) => {
-  Person.find({}).then((persons) => res.json(persons.map(Person.format)))
+app.get('/api/persons', (request, response) => {
+  Person.getAll()
+    .then((persons) => {
+      if (persons) {
+        response.json(persons.map(Person.format))
+      }
+      else {
+        response.json([])
+      }
+    })
+    .catch(error => {
+      console.log("On getAll()", error)
+      return response.status(500).json({ error: 'cannot get persons' })
+    })
 })
 
-app.post('/api/persons', (req, res) => {
-  const person = req.body
+app.post('/api/persons', (request, response) => {
+  const person = request.body
   console.log("POST", person)
 
   if (person.name === undefined) {
-    return res.status(400).json({ error: 'name missing' })
+    return response.status(400).json({ error: 'name missing' })
   }
   if (person.number === undefined) {
-    return res.status(400).json({ error: 'number missing' })
+    return response.status(400).json({ error: 'number missing' })
   }
-  
-  const saved = Person.format(person)
-  Person.create(saved)  
-  contacts = contacts.concat(saved)
-  res.json(saved)
+
+  const formatted = Person.format(person)
+  Person.create(formatted)
+    .then((res) => {
+      const saved = Person.find({ name: person.name })
+        .then(p => p.map(Person.format))
+        .then(p => {
+          contacts = contacts.concat(p)
+          response.json(p)
+        })
+        .catch(error => {
+          console.log(error)
+          return response.status(500).json({ error: 'saving failed' })
+        })
+    })
 })
 
 app.put('/api/persons', (req, res) => {
@@ -108,10 +101,15 @@ app.put('/api/persons', (req, res) => {
 
 
 app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  contacts = contacts.filter(person => person.id !== id)
-
-  response.status(204).end()
+  const id = request.params.id
+  Person.remove(id)
+    .then(result => {
+      contacts = contacts.filter(person => person.id !== id)
+      response.status(204).end()
+    })
+    .catch(error => {
+      response.status(400).send({ error: 'malformatted id' })
+    })
 })
 
 app.get('/info', (req, res) => {

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-var Schema = mongoose.Schema;
+const Schema = mongoose.Schema;
 require('dotenv').config()
 
 const url = process.env.DB_URL
@@ -20,24 +20,17 @@ personSchema.statics.format = (person) => {
         id: person._id
     }
 }
-personSchema.statics.getAll = () => {
-    Person
-        .find({})
-        .then(persons => persons.map(Person.format))
-        .catch(error => {
-            console.log(error)
-        })
 
-}
+personSchema.statics.get = (id) => Person.findById(id)
+
+personSchema.statics.getAll = () => Person.find({})
+
 personSchema.statics.create = (person) => {
     person = new Person(person)
-    person.save()
-        .then(response => {
-            //console.log(`lisätään henkilö ${person.name} numero ${person.number} luetteloon`)            
-        }).catch(error => {
-            console.log(error)
-        })
+    return person.save()
 }
+
+personSchema.statics.remove = (id) => Person.findByIdAndRemove(id)
 
 const Person = mongoose.model('Person', personSchema)
 

@@ -9,8 +9,9 @@ const Person = mongoose.model('Person', {
 })
 
 if (process.argv.length !== 4) {
+  String
   if (process.argv.length === 2) {
-    const formatPerson = (person) => console.log(`${person.name} ${person.number}`) 
+    const formatPerson = (person) => console.log(`${person._id} ${person.name} ${person.number}`)
 
     mongoose.connect(url)
     Person
