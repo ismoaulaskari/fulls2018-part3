@@ -16,7 +16,8 @@
     "dotenv": "^5.0.0",
     "express": "^4.16.2",
     "mongoose": "^5.0.4",
-    "morgan": "^1.9.0"
+    "morgan": "^1.9.0",
+    "morgan-body": "^2.0.2"
   },
   "devDependencies": {
     "eslint": "^4.17.0",
