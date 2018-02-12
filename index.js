@@ -2,15 +2,20 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const bodyParser = require('body-parser')
-//const morgan = require('morgan')
-const morganBody = require('morgan-body')
 const Person = require('./models/person')
 
 app.use(express.static('build'))
 app.use(cors())
 app.use(bodyParser.json())
-//app.use(morgan('tiny'))
-morganBody(app)
+
+if (process.env.NODE_ENV !== 'production') {
+  const morganBody = require('morgan-body')
+  morganBody(app)
+}
+else {
+  const morgan = require('morgan')
+  app.use(morgan('tiny'))
+}
 
 app.get('/', (req, res) => {
   res.send('<h1>Phonebook!</h1>')
