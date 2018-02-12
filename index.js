@@ -22,7 +22,7 @@ app.get('/api/persons/:id', (request, response) => {
   const person = Person.get(id)
     .then(person => {
       if (person) {
-        response.json(person)
+        response.json(Person.format(person))
       }
       else {
         response.status(404).end()
@@ -37,7 +37,7 @@ app.get('/api/persons', (request, response) => {
   Person.getAll()
     .then((persons) => {
       if (persons) {
-        const newPersons = persons.map(Person.format)        
+        const newPersons = persons.map(Person.format)
         response.json(newPersons)
       }
       else {
@@ -66,7 +66,7 @@ app.post('/api/persons', (request, response) => {
     .then((res) => {
       const saved = Person.find({ name: person.name })
         .then(p => p.map(Person.format))
-        .then(p => {          
+        .then(p => {
           response.json(p)
         })
         .catch(error => {
@@ -86,11 +86,11 @@ app.put('/api/persons', (request, response) => {
   if (person.number === undefined) {
     return response.status(400).json({ error: 'number missing' })
   }
-  
+
   Person.get(person.id)
     .then(found => Person.format(found))
     .then(existing => {
-      if (existing) {        
+      if (existing) {
         existing.number = person.number
         Person.updateId(existing)
           .then(updatedPerson => {
@@ -116,7 +116,7 @@ app.put('/api/persons', (request, response) => {
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   Person.remove(id)
-    .then(result => {      
+    .then(result => {
       response.status(204).end()
     })
     .catch(error => {
@@ -125,9 +125,12 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.get('/info', (req, res) => {
-  let info = `puhelinluettelossa ${Person.getAll().length} ihmisen tiedot`
   let time = new Date();
-  res.send(`<p>${info}</p><p>${time}</p>`)
+  Person.getAll()
+    .then(total => {
+      let info = `puhelinluettelossa ${total.length} ihmisen tiedot`
+      res.send(`<p>${info}</p><p>${time}</p>`)
+    })
 })
 
 
