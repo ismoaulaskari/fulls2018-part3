@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema;
-require('dotenv').config()
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config()
+}
 
 const url = process.env.DB_URL
 
@@ -30,7 +32,7 @@ personSchema.statics.create = (person) => {
     return person.save()
 }
 
-personSchema.statics.updateId = (person) => {    
+personSchema.statics.updateId = (person) => {
     return Person.findByIdAndUpdate(person.id, person, { new: true })
 }
 
