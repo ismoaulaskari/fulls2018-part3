@@ -120,7 +120,6 @@ app.put('/api/persons', (request, response) => {
     })
 })
 
-
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   Person.remove(id)
@@ -139,7 +138,6 @@ app.get('/info', (req, res) => {
       res.send(`<p>${info}</p><p>${time}</p>`)
     })
 })
-
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
