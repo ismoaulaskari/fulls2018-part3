@@ -16,10 +16,10 @@ app.get('/', (req, res) => {
 
 app.get('/api/persons/:id', (request, response) => {
   const id = request.params.id
-  //if (!mongoose.Types.ObjectId.isValid(id)) 
+  //if (!mongoose.Types.ObjectId.isValid(id))
   if (!id.match(/^[0-9a-fA-F]{24}$/)) return response.status(400).json({ error: 'bad objectId' })
 
-  const person = Person.get(id)
+  Person.get(id)
     .then(person => {
       if (person) {
         response.json(Person.format(person))
@@ -45,14 +45,14 @@ app.get('/api/persons', (request, response) => {
       }
     })
     .catch(error => {
-      console.log("On getAll()", error)
+      console.log('On getAll()', error)
       return response.status(500).json({ error: 'cannot get persons' })
     })
 })
 
 app.post('/api/persons', (request, response) => {
   const person = request.body
-  console.log("POST", person)
+  console.log('POST', person)
 
   if (person.name === undefined) {
     return response.status(400).json({ error: 'name missing' })
@@ -62,15 +62,15 @@ app.post('/api/persons', (request, response) => {
   }
 
   Person.find({ name: person.name })
-    .then(found => {      
+    .then(found => {
       if (found && found.length > 0) {
         return response.status(400).json({ error: `${found[0].name} already exists` })
       }
       else {
         const formatted = Person.format(person)
         Person.create(formatted)
-          .then((res) => {
-            const saved = Person.find({ name: person.name })
+          .then(
+            Person.find({ name: person.name })
               .then(p => p.map(Person.format))
               .then(p => {
                 response.json(p)
@@ -79,14 +79,14 @@ app.post('/api/persons', (request, response) => {
                 console.log(error)
                 return response.status(500).json({ error: 'saving failed' })
               })
-          })
+          )
       }
     })
 })
 
 app.put('/api/persons', (request, response) => {
   const person = request.body
-  console.log("PUT", person)
+  console.log('PUT', person)
 
   if (person.name === undefined) {
     return response.status(400).json({ error: 'name missing' })
@@ -124,16 +124,15 @@ app.put('/api/persons', (request, response) => {
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   Person.remove(id)
-    .then(result => {
-      response.status(204).end()
-    })
+    .then(response.status(204).end())
     .catch(error => {
+      console.log(error)
       response.status(400).send({ error: 'malformatted id' })
     })
 })
 
 app.get('/info', (req, res) => {
-  let time = new Date();
+  let time = new Date()
   Person.getAll()
     .then(total => {
       let info = `puhelinluettelossa ${total.length} ihmisen tiedot`

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
-const Schema = mongoose.Schema;
+const Schema = mongoose.Schema
 if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').config()
+  require('dotenv').config()
 }
 
 const url = process.env.DB_URL
@@ -10,17 +10,17 @@ mongoose.connect(url)
 mongoose.Promise = global.Promise
 
 const personSchema = new Schema({
-    name: String,
-    number: String,
-    id: String
+  name: String,
+  number: String,
+  id: String
 })
 
 personSchema.statics.format = (person) => {
-    return {
-        name: person.name,
-        number: person.number,
-        id: person._id
-    }
+  return {
+    name: person.name,
+    number: person.number,
+    id: person._id
+  }
 }
 
 personSchema.statics.get = (id) => Person.findById(id)
@@ -28,12 +28,12 @@ personSchema.statics.get = (id) => Person.findById(id)
 personSchema.statics.getAll = () => Person.find({})
 
 personSchema.statics.create = (person) => {
-    person = new Person(person)
-    return person.save()
+  person = new Person(person)
+  return person.save()
 }
 
 personSchema.statics.updateId = (person) => {
-    return Person.findByIdAndUpdate(person.id, person, { new: true })
+  return Person.findByIdAndUpdate(person.id, person, { new: true })
 }
 
 personSchema.statics.remove = (id) => Person.findByIdAndRemove(id)

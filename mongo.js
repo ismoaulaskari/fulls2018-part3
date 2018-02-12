@@ -38,6 +38,7 @@ else {
     .save()
     .then(response => {
       console.log(`lisätään henkilö ${person.name} numero ${person.number} luetteloon`)
+      typeof response
       mongoose.connection.close()
     })
 }
