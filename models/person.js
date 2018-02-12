@@ -30,6 +30,10 @@ personSchema.statics.create = (person) => {
     return person.save()
 }
 
+personSchema.statics.updateId = (person) => {    
+    return Person.findByIdAndUpdate(person.id, person, { new: true })
+}
+
 personSchema.statics.remove = (id) => Person.findByIdAndRemove(id)
 
 const Person = mongoose.model('Person', personSchema)

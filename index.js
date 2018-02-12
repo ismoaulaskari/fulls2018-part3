@@ -10,8 +10,6 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(morgan('tiny'))
 
-let contacts = []
-
 app.get('/', (req, res) => {
   res.send('<h1>Phonebook!</h1>')
 })
@@ -39,7 +37,8 @@ app.get('/api/persons', (request, response) => {
   Person.getAll()
     .then((persons) => {
       if (persons) {
-        response.json(persons.map(Person.format))
+        const newPersons = persons.map(Person.format)        
+        response.json(newPersons)
       }
       else {
         response.json([])
@@ -67,8 +66,7 @@ app.post('/api/persons', (request, response) => {
     .then((res) => {
       const saved = Person.find({ name: person.name })
         .then(p => p.map(Person.format))
-        .then(p => {
-          contacts = contacts.concat(p)
+        .then(p => {          
           response.json(p)
         })
         .catch(error => {
@@ -78,33 +76,47 @@ app.post('/api/persons', (request, response) => {
     })
 })
 
-app.put('/api/persons', (req, res) => {
-  const person = req.body
+app.put('/api/persons', (request, response) => {
+  const person = request.body
+  console.log("PUT", person)
 
   if (person.name === undefined) {
-    return res.status(400).json({ error: 'name missing' })
+    return response.status(400).json({ error: 'name missing' })
   }
   if (person.number === undefined) {
-    return res.status(400).json({ error: 'number missing' })
+    return response.status(400).json({ error: 'number missing' })
   }
-
-  const existing = contacts.find(p => p.name === person.name)
-  if (existing) {
-    existing.number = person.number
-    res.json(existing)
-  }
-  else {
-    return res.status(404)
-  }
-
+  
+  Person.get(person.id)
+    .then(found => Person.format(found))
+    .then(existing => {
+      if (existing) {        
+        existing.number = person.number
+        Person.updateId(existing)
+          .then(updatedPerson => {
+            if (updatedPerson) {
+              response.json(Person.format(updatedPerson))
+            }
+            else {
+              response.json({})
+            }
+          })
+          .catch(error => {
+            console.log(error)
+            return response.status(500).json({ error: 'update failed' })
+          })
+      }
+      else {
+        return response.status(404).end()
+      }
+    })
 })
 
 
 app.delete('/api/persons/:id', (request, response) => {
   const id = request.params.id
   Person.remove(id)
-    .then(result => {
-      contacts = contacts.filter(person => person.id !== id)
+    .then(result => {      
       response.status(204).end()
     })
     .catch(error => {
@@ -113,7 +125,7 @@ app.delete('/api/persons/:id', (request, response) => {
 })
 
 app.get('/info', (req, res) => {
-  let info = `puhelinluettelossa ${contacts.length} ihmisen tiedot`
+  let info = `puhelinluettelossa ${Person.getAll().length} ihmisen tiedot`
   let time = new Date();
   res.send(`<p>${info}</p><p>${time}</p>`)
 })
