@@ -61,18 +61,26 @@ app.post('/api/persons', (request, response) => {
     return response.status(400).json({ error: 'number missing' })
   }
 
-  const formatted = Person.format(person)
-  Person.create(formatted)
-    .then((res) => {
-      const saved = Person.find({ name: person.name })
-        .then(p => p.map(Person.format))
-        .then(p => {
-          response.json(p)
-        })
-        .catch(error => {
-          console.log(error)
-          return response.status(500).json({ error: 'saving failed' })
-        })
+  Person.find({ name: person.name })
+    .then(found => {      
+      if (found && found.length > 0) {
+        return response.status(400).json({ error: `${found[0].name} already exists` })
+      }
+      else {
+        const formatted = Person.format(person)
+        Person.create(formatted)
+          .then((res) => {
+            const saved = Person.find({ name: person.name })
+              .then(p => p.map(Person.format))
+              .then(p => {
+                response.json(p)
+              })
+              .catch(error => {
+                console.log(error)
+                return response.status(500).json({ error: 'saving failed' })
+              })
+          })
+      }
     })
 })
 
